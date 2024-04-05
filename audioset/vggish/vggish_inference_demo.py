@@ -52,7 +52,6 @@ import six
 import soundfile
 import tensorflow.compat.v1 as tf
 from scipy.io import wavfile
-import crepe
 
 import vggish_input
 import vggish_params
@@ -60,15 +59,15 @@ import vggish_postprocess
 import vggish_slim
 import os
 import re
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
-import seaborn as sns
+# from sklearn.cluster import KMeans
+# from sklearn.decomposition import PCA
+# import matplotlib.pyplot as plt
+# import seaborn as sns
 import librosa
 
 
 # Directory containing the audio files
-audio_dir = '/Users/astrid/Documents/Thesis/MEOWS/FreshMeowFolderFeb24/justafewOverlap'
+audio_dir = '/Users/astrid/Documents/Thesis/MEOWS/FreshMeowFolderFeb24/FINALFINALFINAL/EvertyhingOverlapApril3'
 
 # List of audio files
 audio_files = [os.path.join(audio_dir, f) for f in os.listdir(audio_dir) if f.endswith('.wav')]
@@ -103,8 +102,19 @@ def extract_age_from_filename(filename):
         # Convert the matched age to a float and return
         return float(match.group(1))
     else:
-        # If the pattern is not found, return None or raise an error
-        return None
+        # If the pattern is not found, raise an error
+        raise ValueError("Age missing or incorrect: ", filename)
+
+def extract_gender_from_filename(filename):
+    """Extracts the gender part from the filename."""
+    # Adjust regex to find the gender indicator more accurately
+    match = re.search(r"([MFX])(?=-|\d|\.wav)", filename)
+    if match:
+        # Return the matched gender
+        return match.group(1)
+    else:
+        # if gender not documented in filename return 'X' (UNKNOWN)
+        return "X"
 
 
 def extract_pitch_from_filename(filename):
@@ -176,10 +186,15 @@ def main(_):
             else:
                 raise ValueError("Identifier missing or incorrect: ", filename)
 
-            # Extract the target class from the filename
+            # Extract the age from the filename
             age = extract_age_from_filename(filename)
             print(age)
             target_class = age
+
+            # Extract the gender from the filename
+            gender = extract_gender_from_filename(filename)
+            print(gender)
+            gender_class = gender
 
             # Full path to the audio file
             full_audio_path = os.path.join(audio_dir, audio_file)
@@ -227,7 +242,7 @@ def main(_):
             print(len(embedding_batch))
 
             for embedding in embedding_batch:
-                data_list.append([embedding, mean_freq, target_class, cat_id])
+                data_list.append([embedding, mean_freq, gender_class, target_class, cat_id])
 
             # # Average the embeddings and append to the list
             # average_embedding = np.mean(embedding_batch, axis=0)
@@ -244,10 +259,11 @@ def main(_):
             # data_list.append([combined_features, target_class, cat_id])
 
     # Create a DataFrame with embeddings and corresponding labels
-    embeddings_df = pd.DataFrame(data_list, columns=['embedding', 'mean_freq', 'target', 'cat_id'])
+    embeddings_df = pd.DataFrame(data_list, columns=['embedding', 'mean_freq', 'gender', 'target', 'cat_id'])
 
     # expand 'embedding' column to separate columns
     embeddings_df = pd.concat([pd.DataFrame(embeddings_df['embedding'].tolist()), embeddings_df['mean_freq'],
+                               embeddings_df['gender'],
                                embeddings_df['target'],
                                embeddings_df['cat_id']], axis=1)
 

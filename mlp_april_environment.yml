@@ -1,0 +1,4 @@
+name: myenv
+channels:
+  - conda-forge
+prefix: /Users/astrid/miniforge3/envs/myenv

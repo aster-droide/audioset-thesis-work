@@ -30,7 +30,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GroupKFold
 from tensorflow.keras.callbacks import CSVLogger, ModelCheckpoint, EarlyStopping
 import os
-import tensorflow as tf
 
 # Force TensorFlow to use CPU
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
@@ -40,7 +39,7 @@ print("Available GPU devices: ", tf.config.list_physical_devices('GPU'))
 
 
 # Set a fixed random seed for reproducibility
-random.seed(42) # <- added
+random.seed(42)
 np.random.seed(42)
 tf.random.set_seed(42)
 
