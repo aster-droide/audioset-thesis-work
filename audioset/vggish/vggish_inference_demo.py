@@ -67,7 +67,7 @@ import librosa
 
 
 # Directory containing the audio files
-audio_dir = '/Users/astrid/Documents/Thesis/MEOWS/FreshMeowFolderFeb24/FINALFINALFINAL/EvertyhingOverlapApril3'
+audio_dir = '/Users/astrid/Documents/Thesis/MEOWS/FreshMeowFolderFeb24/FINALFINALFINAL/AugmDs/VGGIsh/AugmD22-looped'
 
 # List of audio files
 audio_files = [os.path.join(audio_dir, f) for f in os.listdir(audio_dir) if f.endswith('.wav')]
@@ -202,7 +202,7 @@ def main(_):
             """
             extract pitch from filename (generated with crepe)
             """
-            mean_freq = extract_pitch_from_filename(filename)
+            # mean_freq = extract_pitch_from_filename(filename)
 
             # TODO:
             """       
@@ -242,7 +242,7 @@ def main(_):
             print(len(embedding_batch))
 
             for embedding in embedding_batch:
-                data_list.append([embedding, mean_freq, gender_class, target_class, cat_id])
+                data_list.append([embedding, gender_class, target_class, cat_id])
 
             # # Average the embeddings and append to the list
             # average_embedding = np.mean(embedding_batch, axis=0)
@@ -259,10 +259,10 @@ def main(_):
             # data_list.append([combined_features, target_class, cat_id])
 
     # Create a DataFrame with embeddings and corresponding labels
-    embeddings_df = pd.DataFrame(data_list, columns=['embedding', 'mean_freq', 'gender', 'target', 'cat_id'])
+    embeddings_df = pd.DataFrame(data_list, columns=['embedding', 'gender', 'target', 'cat_id'])
 
     # expand 'embedding' column to separate columns
-    embeddings_df = pd.concat([pd.DataFrame(embeddings_df['embedding'].tolist()), embeddings_df['mean_freq'],
+    embeddings_df = pd.concat([pd.DataFrame(embeddings_df['embedding'].tolist()),
                                embeddings_df['gender'],
                                embeddings_df['target'],
                                embeddings_df['cat_id']], axis=1)
