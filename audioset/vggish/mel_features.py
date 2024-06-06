@@ -217,15 +217,19 @@ def log_mel_spectrogram(data,
       fft_length=fft_length,
       hop_length=hop_length_samples,
       window_length=window_length_samples)
+
   mel_spectrogram = np.dot(spectrogram, spectrogram_to_mel_matrix(
       num_spectrogram_bins=spectrogram.shape[1],
       audio_sample_rate=audio_sample_rate, **kwargs))
-  # # TODO: adjust
   # # Apply PCEN instead of log
-  # pcen_mel_spectrogram = librosa.pcen(mel_spectrogram * (2 ** 31),
+  # pcen_mel_spectrogram = librosa.pcen(mel_spectrogram,
   #                                     sr=audio_sample_rate,
-  #                                     hop_length=int(round(audio_sample_rate * hop_length_secs)),
-  #                                     gain=0.8, bias=10 ** -6, power=0.25, time_constant=0.06, eps=10 ** -6)
-  #
+  #                                     hop_length=hop_length_samples,
+  #                                     gain=0.95,  # Slightly lower to preserve dynamics
+  #                                     bias=1,  # Lower to enhance quieter parts
+  #                                     power=0.6,  # Higher to maintain better dynamic range
+  #                                     time_constant=0.2,  # Lower for faster responsiveness
+  #                                     eps=1e-6)  # Default epsilon
+
   # return pcen_mel_spectrogram
   return np.log(mel_spectrogram + log_offset)

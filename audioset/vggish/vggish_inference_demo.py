@@ -67,7 +67,7 @@ import librosa
 
 
 # Directory containing the audio files
-audio_dir = '/Users/astrid/Documents/Thesis/MEOWS/FreshMeowFolderFeb24/FINALFINALFINAL/AugmDs/VGGIsh/AugmD22-looped'
+audio_dir = '/Users/astrid/Documents/Thesis/MEOWS/FreshMeowFolderFeb24/FINALFINALFINAL/VGGIsh/EverythingLoopedApril8VGGish'
 
 # List of audio files
 audio_files = [os.path.join(audio_dir, f) for f in os.listdir(audio_dir) if f.endswith('.wav')]
@@ -140,28 +140,14 @@ def extract_pitch_from_filename(filename):
         # If the pattern is not found, return None
         return None
 
+
+# for if you dont need these
+# cat_id = None
+# gender = None
+
+
 def main(_):
-  #   # Write a WAV of a sine wav into an in-memory file object.
-  #   num_secs = 5
-  #   freq = 1000
-  #   sr = 44100
-  #   t = np.arange(0, num_secs, 1 / sr)
-  #   x = np.sin(2 * np.pi * freq * t)
-  #   # Convert to signed 16-bit samples.
-  #   samples = np.clip(x * 32768, -32768, 32767).astype(np.int16)
-  #   wav_file = six.BytesIO()
-  #   soundfile.write(wav_file, samples, sr, format='WAV', subtype='PCM_16')
-  #   wav_file.seek(0)
 
-    # # Prepare a postprocessor to munge the model embeddings.
-    # pproc = vggish_postprocess.Postprocessor(FLAGS.pca_params)
-    #
-    # # If needed, prepare a record writer to store the postprocessed embeddings.
-    # writer = tf.python_io.TFRecordWriter(
-    #     FLAGS.tfrecord_file) if FLAGS.tfrecord_file else None
-
-    # Add the target variable column (you'll need to determine the logic for setting the target)
-    # For example, if you have class labels in the filename:
     with tf.Graph().as_default(), tf.Session() as sess:
         # Define the model in inference mode, load the checkpoint, and
         # locate input and output tensors.
@@ -204,30 +190,7 @@ def main(_):
             """
             # mean_freq = extract_pitch_from_filename(filename)
 
-            # TODO:
-            """       
-            supplement VGGish embeddings with other features that might be more 
-            discriminative for age classification, like fundamental frequency (pitch), 
-            duration, energy distribution (explore), or harmonics.
-            
-            normalise the necessary, scale were required
-            """
-            # # Load audio file
-            # y, sr = librosa.load(full_audio_path, sr=None)
-            #
-            # # Extract energy distribution
-            # energy = np.mean(librosa.feature.rms(y=y))
-            # # Check if standard deviation is zero
-            # if np.std(energy) == 0:
-            #     energy_normalized = energy  # Keep the original energy value
-            # else:
-            #     # Normalize energy distribution
-            #     energy_normalized = (energy - np.mean(energy)) / np.std(energy)
-
-            # Extract VGGish embeddings
             examples_batch = vggish_input.wavfile_to_examples(full_audio_path)
-
-            # print("examples_batch", examples_batch)
 
             features_tensor = sess.graph.get_tensor_by_name(
                 vggish_params.INPUT_TENSOR_NAME)
@@ -237,6 +200,13 @@ def main(_):
             # Run inference and postprocessing.
             [embedding_batch] = sess.run([embedding_tensor],
                                          feed_dict={features_tensor: examples_batch})
+
+            # todo: maybe remove this again later
+            # Prepare a postprocessor to munge the model embeddings.
+            # pproc = vggish_postprocess.Postprocessor(FLAGS.pca_params)
+            # print(embedding_batch)
+            # embedding_batch = pproc.postprocess(embedding_batch)
+            # print(embedding_batch)
 
             # print("embedding_batch", embedding_batch)
             print(len(embedding_batch))
@@ -272,74 +242,6 @@ def main(_):
 
     # Save the DataFrame to a CSV file
     embeddings_df.to_csv('all_embeddings.csv', index=False)
-
-    # # Perform clustering on the embeddings
-    # n_clusters = 4  # Choose the number of clusters
-    # kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-    # embeddings_df['cluster'] = kmeans.fit_predict(embeddings_df.drop(['cat_id', 'target'], axis=1))
-    #
-    # # Reduce dimensionality for visualization
-    # pca = PCA(n_components=2)
-    # reduced_embeddings = pca.fit_transform(embeddings_df.drop(['cluster', 'target', 'cat_id'], axis=1))
-    # embeddings_df['PCA1'] = reduced_embeddings[:, 0]
-    # embeddings_df['PCA2'] = reduced_embeddings[:, 1]
-    #
-    # # Define target color palette
-    # custom_palette = {'KITTEN': 'red', 'YOUNG': 'pink', 'SENIOR': 'blue', 'ADULT': 'purple'}
-    #
-    # # Visualize the clusters with PCA components
-    # plt.figure(figsize=(10, 8))
-    # sns.scatterplot(x='PCA1', y='PCA2', hue='cluster', data=embeddings_df, palette='viridis', alpha=0.7)
-    # plt.title('Cluster Visualization with PCA Components')
-    # plt.show()
-    #
-    # # Overlay the target classes for reference
-    # plt.figure(figsize=(10, 8))
-    # sns.scatterplot(x='PCA1', y='PCA2', hue='target', data=embeddings_df, palette=custom_palette, alpha=0.7, legend='full')
-    # plt.title('Target Class Visualization with PCA Components')
-    # plt.show()
-
-
-        # print(embedding_batch)
-        # postprocessed_batch = pproc.postprocess(embedding_batch)
-        # print(postprocessed_batch)
-        #
-        # # For raw embeddings
-        # embeddings_df = pd.DataFrame(embedding_batch)
-        # embeddings_df.to_csv('raw_embeddings.csv', index=False)
-        #
-        # # For post-processed embeddings
-        # postprocessed_df = pd.DataFrame(postprocessed_batch)
-        # postprocessed_df.to_csv('postprocessed_embeddings.csv', index=False)
-        #
-        # # Write the postprocessed embeddings as a SequenceExample, in a similar
-        # # format as the features released in AudioSet. Each row of the batch of
-        # # embeddings corresponds to roughly a second of audio (96 10ms frames), and
-        # # the rows are written as a sequence of bytes-valued features, where each
-        # # feature value contains the 128 bytes of the whitened quantized embedding.
-        # seq_example = tf.train.SequenceExample(
-        #     feature_lists=tf.train.FeatureLists(
-        #         feature_list={
-        #             vggish_params.AUDIO_EMBEDDING_FEATURE_NAME:
-        #                 tf.train.FeatureList(
-        #                     feature=[
-        #                         tf.train.Feature(
-        #                             bytes_list=tf.train.BytesList(
-        #                                 value=[embedding.tobytes()]))
-        #                         for embedding in postprocessed_batch
-        #                     ]
-        #                 )
-        #         }
-        #     )
-        # )
-        # print(seq_example)
-
-
-    #     if writer:
-    #         writer.write(seq_example.SerializeToString())
-    #
-    # if writer:
-    #     writer.close()
 
 
 if __name__ == '__main__':

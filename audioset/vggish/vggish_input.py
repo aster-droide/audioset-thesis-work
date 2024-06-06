@@ -28,6 +28,12 @@ try:
     wav_data, sr = sf.read(wav_file, dtype='int16')
     return wav_data, sr
 
+  # def wav_read(wav_file):
+  #   wav_data, sr = sf.read(wav_file, dtype='int32')
+  #   if wav_data.dtype == np.int16:
+  #       wav_data = wav_data.astype(np.int32) * 32768  # Scale 16-bit to 32-bit range
+  #   return wav_data, sr
+
 except ImportError:
 
   def wav_read(wav_file):
@@ -95,3 +101,18 @@ def wavfile_to_examples(wav_file):
   assert wav_data.dtype == np.int16, 'Bad sample type: %r' % wav_data.dtype
   samples = wav_data / 32768.0  # Convert to [-1.0, +1.0]
   return waveform_to_examples(samples, sr)
+
+
+# def wavfile_to_examples(wav_file):
+#     """Convenience wrapper around waveform_to_examples() for a common WAV format.
+#
+#     Args:
+#       wav_file: String path to a file, or a file-like object. The file
+#       is assumed to contain WAV audio data with signed 16-bit PCM samples.
+#
+#     Returns:
+#       See waveform_to_examples.
+#     """
+#     wav_data, sr = wav_read(wav_file)
+#     # No scaling to [-1.0, +1.0]; keep as 32-bit integer if using PCEN
+#     return waveform_to_examples(wav_data, sr)
