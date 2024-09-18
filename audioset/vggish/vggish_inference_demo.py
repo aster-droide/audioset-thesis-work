@@ -65,9 +65,14 @@ import re
 # import seaborn as sns
 import librosa
 
+"""
+file naming convention is
+e.g. 18Y-117A-F1-04.wav - age-cat_id-gender(recordingCount)-meowCount
+e.g. 5.25Y-099A-F1-NC-05.wav age-cat_id-gender(recordingCount)-context-meowCount
+"""
 
 # Directory containing the audio files
-audio_dir = '/Users/astrid/Documents/Thesis/MEOWS/FreshMeowFolderFeb24/FINALFINALFINAL/VGGIsh/EverythingLoopedApril8VGGish'
+audio_dir = 'AudioLoopedVGGish'
 
 # List of audio files
 audio_files = [os.path.join(audio_dir, f) for f in os.listdir(audio_dir) if f.endswith('.wav')]
